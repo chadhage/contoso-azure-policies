@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contoso Azure Policy — Enterprise-Scale Landing Zone Baseline</title>
+  <meta name="description" content="Azure Policy best-practice baseline for Contoso, organized around the five Well-Architected Framework pillars and deployed across an enterprise-scale landing zone." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top">
+      <span class="brand-mark" aria-hidden="true">🛡️</span>
+      <span class="brand-text">Contoso&nbsp;<strong>Azure Policy</strong></span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#pillars">Pillars</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#catalog">Policy catalog</a>
+      <a href="#deploy">Deploy</a>
+      <a class="nav-cta" href="https://github.com/chadhage/contoso-azure-policies" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme" title="Toggle theme">◐</button>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <p class="eyebrow">Enterprise-Scale Landing Zone · Cloud Adoption Framework</p>
+        <h1>Governance guardrails, aligned to the<br /><span class="grad">Well-Architected Framework</span></h1>
+        <p class="lede">
+          An opinionated, deployable Azure Policy baseline for <strong>Contoso Ltd.</strong>
+          Custom definitions, WAF-aligned initiatives, and management-group assignments —
+          shipped as code with an <em>Audit-first, Deny-later</em> rollout model.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#catalog">Explore the catalog</a>
+          <a class="btn ghost" href="#deploy">Deploy it</a>
+        </div>
+        <dl class="stats" id="heroStats">
+          <div><dt data-count="21">0</dt><dd>Policy definitions</dd></div>
+          <div><dt data-count="5">0</dt><dd>WAF initiatives</dd></div>
+          <div><dt data-count="9">0</dt><dd>MG assignments</dd></div>
+          <div><dt data-count="10">0</dt><dd>Management groups</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- PILLARS -->
+    <section id="pillars" class="section">
+      <div class="section-head">
+        <h2>Five pillars, one baseline</h2>
+        <p>Every policy is tagged to a Well-Architected Framework pillar and rolled up into a per-pillar initiative.</p>
+      </div>
+      <div class="pillar-grid" id="pillarGrid"><!-- injected --></div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section id="architecture" class="section alt">
+      <div class="section-head">
+        <h2>Enterprise-scale management group hierarchy</h2>
+        <p>Guardrails assign at management-group scope so every current and future subscription inherits compliance.</p>
+      </div>
+      <div class="arch-wrap">
+        <div class="mg-tree" id="mgTree"><!-- injected --></div>
+        <aside class="arch-note">
+          <h3>Inheritance model</h3>
+          <ul>
+            <li><strong>Broad, safe guardrails</strong> (locations, tags, audits) assign at <code>contoso</code>.</li>
+            <li><strong>Strict enforcement</strong> (<code>Deny</code>, <code>DeployIfNotExists</code>) assigns lower in the tree.</li>
+            <li><strong>Sandbox</strong> gets cost controls with audit-only security.</li>
+            <li><strong>Decommissioned</strong> denies all new resource creation.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- CATALOG -->
+    <section id="catalog" class="section">
+      <div class="section-head">
+        <h2>Policy catalog</h2>
+        <p>Filter by pillar or search. Each policy ships parameterized effects defaulted to a safe value.</p>
+      </div>
+      <div class="catalog-controls">
+        <div class="filters" id="pillarFilters" role="tablist" aria-label="Filter by pillar"></div>
+        <input type="search" id="searchBox" class="search" placeholder="Search policies…" aria-label="Search policies" />
+      </div>
+      <div class="catalog-grid" id="catalogGrid"><!-- injected --></div>
+      <p class="empty" id="emptyState" hidden>No policies match your filter.</p>
+    </section>
+
+    <!-- DEPLOY -->
+    <section id="deploy" class="section alt">
+      <div class="section-head">
+        <h2>Deploy in three steps</h2>
+        <p>Portal, CLI, or CI/CD. The orchestrator creates definitions, initiatives, and scoped assignments.</p>
+      </div>
+      <div class="deploy-grid">
+        <ol class="steps">
+          <li><span class="step-n">1</span><div><h4>Authenticate</h4><p>Sign in and target the Contoso intermediate root management group.</p></div></li>
+          <li><span class="step-n">2</span><div><h4>Deploy the hierarchy</h4><p>Optionally stand up the management-group tree with Bicep (tenant scope).</p></div></li>
+          <li><span class="step-n">3</span><div><h4>Apply the baseline</h4><p>Run the orchestrator to create definitions, initiatives, and assignments.</p></div></li>
+        </ol>
+        <div class="code-card">
+          <div class="code-tabs" role="tablist">
+            <button class="code-tab active" data-tab="pwsh" role="tab">PowerShell</button>
+            <button class="code-tab" data-tab="bash" role="tab">Bash</button>
+          </div>
+          <pre class="code-pane active" data-pane="pwsh"><code># 1. Authenticate
+az login
+az account set --subscription "&lt;platform-mgmt-sub-id&gt;"
+
+# 2. Deploy the management group hierarchy (tenant-scoped)
+az deployment tenant create `
+  --name contoso-mg-hierarchy `
+  --location eastus `
+  --template-file management-groups/hierarchy.bicep
+
+# 3. Deploy definitions, initiatives &amp; assignments
+./scripts/deploy.ps1 -RootManagementGroupId contoso -Location eastus -WhatIf</code></pre>
+          <pre class="code-pane" data-pane="bash"><code># 1. Authenticate
+az login
+az account set --subscription "&lt;platform-mgmt-sub-id&gt;"
+
+# 2. Deploy the management group hierarchy (tenant-scoped)
+az deployment tenant create \
+  --name contoso-mg-hierarchy \
+  --location eastus \
+  --template-file management-groups/hierarchy.bicep
+
+# 3. Deploy definitions, initiatives &amp; assignments
+./scripts/deploy.sh --mg contoso --location eastus --what-if</code></pre>
+          <button class="copy-btn" id="copyBtn" title="Copy command">Copy</button>
+        </div>
+      </div>
+      <p class="lifecycle-note">
+        <strong>Rollout model:</strong> onboard in <code>Audit</code> → measure 2–4 weeks → remediate →
+        promote the assignment <code>effect</code> to <code>Deny</code> → time-box any exemptions.
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <p class="brand-text"><span aria-hidden="true">🛡️</span>&nbsp;Contoso Azure Policy</p>
+        <p class="muted">Enterprise-scale landing zone baseline · WAF-aligned governance as code.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/chadhage/contoso-azure-policies" target="_blank" rel="noopener">Repository</a>
+        <a href="https://learn.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/" target="_blank" rel="noopener">CAF Enterprise-scale</a>
+        <a href="https://learn.microsoft.com/azure/well-architected/" target="_blank" rel="noopener">Well-Architected Framework</a>
+      </div>
+      <div class="footer-author">
+        <p>Maintained by <strong>Chad Hage (MSFT)</strong></p>
+        <p><a href="mailto:chad.hage@microsoft.com">chad.hage@microsoft.com</a></p>
+      </div>
+    </div>
+    <p class="copyright">© <span id="year"></span> Contoso Ltd. (fictional). For demonstration purposes.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

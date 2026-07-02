@@ -6,6 +6,8 @@ organization. Policies are organized around the five
 deployed across an **Enterprise-Scale Landing Zone (ESLZ)** management group
 hierarchy aligned with the Microsoft Cloud Adoption Framework (CAF).
 
+**🌐 Live site:** https://chadhage.github.io/contoso-azure-policies/
+
 > This repo is opinionated, self-contained, and portal/CLI/CI deployable. It
 > ships policy **definitions**, WAF-aligned **initiatives** (policy sets),
 > management-group **assignments**, and deployment automation.

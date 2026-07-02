@@ -24,6 +24,8 @@ jobs:
     name: Deploy policy baseline
     runs-on: ubuntu-latest
     environment: production
+    # Skips gracefully until OIDC federation is configured for the deployment identity.
+    if: ${{ vars.AZURE_CLIENT_ID != '' }}
     steps:
       - uses: actions/checkout@v4
 

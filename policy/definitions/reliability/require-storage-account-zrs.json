@@ -5,7 +5,7 @@
     "displayName": "Storage accounts should use zone- or geo-redundant replication",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Enforces that storage accounts use a resilient SKU (ZRS, GZRS, GRS, or RAGRS) so data survives datacenter or region failures. Supports the Reliability pillar of the Well-Architected Framework.",
+    "description": "Enforces that storage accounts use a resilient SKU so data survives datacenter or region failures. The default allowed list accepts both zone-redundant SKUs (ZRS, GZRS, RAGZRS — synchronous copies across availability zones in the primary region) and geo-redundant SKUs (GRS, RAGRS — asynchronous replication to a paired region, but LRS within the primary region). For strict intra-region zone resiliency, restrict allowedSkus to the zone-redundant SKUs only. Supports the Reliability pillar of the Well-Architected Framework.",
     "metadata": {
       "version": "1.0.0",
       "category": "Storage",

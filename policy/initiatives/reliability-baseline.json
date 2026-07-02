@@ -44,7 +44,7 @@
       "vmBackupPolicyId": {
         "type": "String",
         "defaultValue": "",
-        "metadata": { "displayName": "VM backup policy resource id" }
+        "metadata": { "displayName": "VM backup policy resource id (vault must be in the same subscription and region as the VMs)" }
       }
     },
     "policyDefinitions": [

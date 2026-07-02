@@ -55,7 +55,8 @@ hierarchy aligned with the Microsoft Cloud Adoption Framework (CAF).
 │   └── deploy.sh                  # Bash deployment orchestrator
 └── .github/workflows/
     ├── policy-validation.yml      # Lint + what-if on PR
-    └── policy-deploy.yml          # Deploy on merge to main
+    ├── policy-deploy.yml          # Deploy on merge to main
+    └── deploy-pages.yml           # Publish the docs minisite to GitHub Pages
 ```
 
 ---

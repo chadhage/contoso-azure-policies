@@ -20,7 +20,7 @@
           "description": "Enable or disable the execution of the policy."
         },
         "allowedValues": [ "Audit", "Deny", "Modify", "Disabled" ],
-        "defaultValue": "Modify"
+        "defaultValue": "Audit"
       }
     },
     "policyRule": {

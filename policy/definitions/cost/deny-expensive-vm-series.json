@@ -2,10 +2,10 @@
   "name": "contoso-deny-expensive-vm-series",
   "type": "Microsoft.Authorization/policyDefinitions",
   "properties": {
-    "displayName": "Deny expensive GPU and HPC virtual machine series",
+    "displayName": "Deny expensive GPU, HPC, and large memory-optimized virtual machine series",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Blocks high-cost GPU (N-series) and HPC (H-series) virtual machine families unless explicitly approved, preventing accidental large spend. Supports the Cost Optimization pillar of the Well-Architected Framework.",
+    "description": "Blocks high-cost GPU (N-series), HPC (H-series), and large memory-optimized (M-series) virtual machine families unless explicitly approved, preventing accidental large spend. The blocked families are configurable via the blockedSkuPrefixes parameter. Supports the Cost Optimization pillar of the Well-Architected Framework.",
     "metadata": {
       "version": "1.0.0",
       "category": "Compute",

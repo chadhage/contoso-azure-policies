@@ -39,13 +39,14 @@ and paired-region DR coverage:
 
 ## Mandatory resource tags
 
-Every resource (and resource group) must carry these tags. The governance
-initiative enforces presence and can inherit values from the resource group.
+Every resource (and resource group) should carry these tags. The governance
+initiative audits tag presence (promote to `Deny` per landing zone) and can
+inherit values from the parent resource group.
 
 | Tag | Example | Enforcement |
 | --- | --- | --- |
-| `CostCenter` | `CC-1042` | Required (`Deny` if missing) |
-| `Environment` | `Production` / `NonProduction` / `Sandbox` | Required, allowed-values |
+| `CostCenter` | `CC-1042` | Presence audited on landing zones and `Deny` in sandbox (via the cost baseline); inherited from the resource group via `Modify` |
+| `Environment` | `Production` / `NonProduction` / `Sandbox` | Presence audited (promote to `Deny`). Allowed-values are a naming convention, not yet policy-enforced |
 | `Owner` | `platform-team@contoso.com` | Required |
 | `DataClassification` | `Public` / `Internal` / `Confidential` / `HighlyConfidential` | Required |
 | `Workload` | `erp` / `shop` / `hub` | Required |

@@ -5,7 +5,7 @@
     "displayName": "Storage accounts should enforce a minimum TLS version of 1.2",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Ensures storage accounts reject connections using TLS versions older than 1.2. Supports Modify to auto-remediate. Supports the Security pillar of the Well-Architected Framework.",
+    "description": "Flags storage accounts whose minimum TLS version is below the required floor (TLS 1.2). Versions at or above the floor (including TLS 1.3) are compliant. Modify raises non-compliant accounts to the floor and never downgrades a higher version. Supports the Security pillar of the Well-Architected Framework.",
     "metadata": {
       "version": "1.0.0",
       "category": "Storage",
@@ -20,16 +20,24 @@
           "description": "Enable or disable the execution of the policy."
         },
         "allowedValues": [ "Audit", "Deny", "Modify", "Disabled" ],
-        "defaultValue": "Modify"
+        "defaultValue": "Audit"
       },
       "minimumTlsVersion": {
         "type": "String",
         "metadata": {
           "displayName": "Minimum TLS version",
-          "description": "The minimum accepted TLS version."
+          "description": "The floor that Modify sets on non-compliant accounts."
         },
         "allowedValues": [ "TLS1_2", "TLS1_3" ],
         "defaultValue": "TLS1_2"
+      },
+      "compliantTlsVersions": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Compliant TLS versions",
+          "description": "Minimum TLS versions considered at or above the required floor. Accounts set to any of these (for example TLS1_3) are compliant and are never modified."
+        },
+        "defaultValue": [ "TLS1_2", "TLS1_3" ]
       }
     },
     "policyRule": {
@@ -41,7 +49,7 @@
           },
           {
             "field": "Microsoft.Storage/storageAccounts/minimumTlsVersion",
-            "notEquals": "[parameters('minimumTlsVersion')]"
+            "notIn": "[parameters('compliantTlsVersions')]"
           }
         ]
       },

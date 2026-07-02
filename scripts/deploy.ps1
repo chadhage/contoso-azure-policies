@@ -102,7 +102,7 @@ foreach ($a in $manifest.assignments) {
     $scope = "/providers/Microsoft.Management/managementGroups/$($a.managementGroup)"
     Write-Host "  - $($a.name) -> $($a.managementGroup)" -ForegroundColor Gray
 
-    $args = @(
+    $azArgs = @(
         'policy', 'assignment', 'create',
         '--name', $a.name,
         '--display-name', $a.displayName,
@@ -112,28 +112,37 @@ foreach ($a in $manifest.assignments) {
     )
 
     if ($a.PSObject.Properties.Name -contains 'initiative') {
-        $args += @('--policy-set-definition', "$mgScope/providers/Microsoft.Authorization/policySetDefinitions/$($a.initiative)")
+        $azArgs += @('--policy-set-definition', "$mgScope/providers/Microsoft.Authorization/policySetDefinitions/$($a.initiative)")
     }
     elseif ($a.PSObject.Properties.Name -contains 'policyDefinition') {
-        $args += @('--policy', "$mgScope/providers/Microsoft.Authorization/policyDefinitions/$($a.policyDefinition)")
+        $azArgs += @('--policy', "$mgScope/providers/Microsoft.Authorization/policyDefinitions/$($a.policyDefinition)")
     }
 
     if ($a.identity -eq 'SystemAssigned') {
-        $args += @('--mi-system-assigned', '--location', $a.location)
+        $azArgs += @('--mi-system-assigned', '--location', $a.location)
     }
 
     if ($a.PSObject.Properties.Name -contains 'nonComplianceMessages') {
         foreach ($m in $a.nonComplianceMessages) {
-            $args += @('--non-compliance-messages', $m.message)
+            $azArgs += @('--non-compliance-messages', $m.message)
         }
     }
 
     if ($PSCmdlet.ShouldProcess($a.name, 'Create policy assignment')) {
-        az @args | Out-Null
+        az @azArgs | Out-Null
 
         # Grant least-privilege roles for DeployIfNotExists / Modify remediation
         if ($a.identity -eq 'SystemAssigned' -and ($a.PSObject.Properties.Name -contains 'roleDefinitionIds')) {
-            $principalId = az policy assignment show --name $a.name --scope $scope --query 'identity.principalId' -o tsv
+            # The system-assigned identity can take a moment to propagate; retry reading it.
+            $principalId = $null
+            for ($attempt = 1; $attempt -le 6 -and -not $principalId; $attempt++) {
+                $principalId = az policy assignment show --name $a.name --scope $scope --query 'identity.principalId' -o tsv
+                if (-not $principalId) { Start-Sleep -Seconds 5 }
+            }
+            if (-not $principalId) {
+                Write-Warning "Could not resolve managed identity for $($a.name); skipping role assignments."
+                continue
+            }
             foreach ($roleId in $a.roleDefinitionIds) {
                 $roleName = $roleId.Split('/')[-1]
                 az role assignment create `

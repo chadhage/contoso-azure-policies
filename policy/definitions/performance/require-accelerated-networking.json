@@ -5,7 +5,7 @@
     "displayName": "Network interfaces should have accelerated networking enabled",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Audits network interfaces that do not have accelerated networking enabled, which lowers latency and jitter and increases packets-per-second on supported VM sizes. Supports the Performance Efficiency pillar of the Well-Architected Framework.",
+    "description": "Audits network interfaces that do not have accelerated networking enabled, which lowers latency and jitter and increases packets-per-second. Note: many VM sizes (for example B-series and small D/E sizes) do not support accelerated networking, so their NICs will be flagged even though they cannot enable it; treat results as candidates to review rather than hard failures. Supports the Performance Efficiency pillar of the Well-Architected Framework.",
     "metadata": {
       "version": "1.0.0",
       "category": "Network",

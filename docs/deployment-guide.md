@@ -78,11 +78,10 @@ az policy remediation create \
 ## 5. Validate
 
 ```bash
-# What-if a management-group deployment
-az deployment mg what-if \
-  --management-group-id contoso \
-  --location eastus \
-  --template-file policy/assignments/contoso-root.bicep
+# Preview all definitions, initiatives, and assignments without applying
+./scripts/deploy.sh --mg contoso --location eastus --what-if
+# (PowerShell equivalent)
+# ./scripts/deploy.ps1 -RootManagementGroupId contoso -Location eastus -WhatIf
 
 # Trigger an on-demand compliance scan
 az policy state trigger-scan --management-group contoso

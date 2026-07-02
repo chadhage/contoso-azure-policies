@@ -11,7 +11,7 @@ const PILLARS = [
   { id: "cost",        name: "Cost",         icon: "💰", color: "var(--cost)",
     blurb: "Prevent waste with SKU limits, tags, and shutdown schedules." },
   { id: "governance",  name: "Governance",   icon: "🏛️", color: "var(--gov)",
-    blurb: "Consistency via allowed regions, tags, and centralized diagnostics." },
+    blurb: "Consistency via allowed regions, required tags, and diagnostics forwarding." },
   { id: "performance", name: "Performance",  icon: "⚡", color: "var(--perf)",
     blurb: "Right resources and scale for latency and throughput targets." },
 ];
@@ -27,14 +27,15 @@ const POLICIES = [
   { pillar: "security", name: "Storage should require secure transfer (HTTPS only)", effects: ["Audit", "Deny", "Modify"] },
   { pillar: "security", name: "Storage should enforce minimum TLS 1.2", effects: ["Audit", "Deny", "Modify"] },
   { pillar: "security", name: "Storage should disable public network access", effects: ["Audit", "Deny"] },
-  { pillar: "security", name: "Microsoft Defender for Cloud plan should be enabled", effects: ["AuditIfNotExists", "DeployIfNotExists"] },
+  { pillar: "security", name: "Microsoft Defender for Cloud plans should be enabled", effects: ["AuditIfNotExists", "DeployIfNotExists"] },
   // Cost
   { pillar: "cost", name: "Restrict to allowed virtual machine SKUs", effects: ["Audit", "Deny"] },
-  { pillar: "cost", name: "Deny expensive GPU and HPC VM series", effects: ["Audit", "Deny"] },
+  { pillar: "cost", name: "Deny expensive GPU, HPC & memory-optimized VM series", effects: ["Audit", "Deny"] },
   { pillar: "cost", name: "Resources must carry a CostCenter tag", effects: ["Audit", "Deny"] },
   { pillar: "cost", name: "Sandbox VMs should have an auto-shutdown schedule", effects: ["AuditIfNotExists"] },
   // Governance
   { pillar: "governance", name: "Restrict allowed deployment locations", effects: ["Audit", "Deny"] },
+  { pillar: "governance", name: "Restrict resource group locations", effects: ["Audit", "Deny"] },
   { pillar: "governance", name: "Require a specified tag on resources", effects: ["Audit", "Deny"] },
   { pillar: "governance", name: "Inherit a tag from the resource group if missing", effects: ["Modify"] },
   { pillar: "governance", name: "Deploy diagnostic settings to Log Analytics", effects: ["AuditIfNotExists", "DeployIfNotExists"] },

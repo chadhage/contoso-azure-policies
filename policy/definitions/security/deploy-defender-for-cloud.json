@@ -20,7 +20,15 @@
           "description": "Enable or disable the execution of the policy."
         },
         "allowedValues": [ "DeployIfNotExists", "AuditIfNotExists", "Disabled" ],
-        "defaultValue": "DeployIfNotExists"
+        "defaultValue": "AuditIfNotExists"
+      },
+      "deploymentLocation": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Remediation deployment location",
+          "description": "Region used for the DeployIfNotExists remediation deployment."
+        },
+        "defaultValue": "eastus"
       },
       "pricingTier": {
         "type": "String",
@@ -59,7 +67,7 @@
             "equals": "[parameters('pricingTier')]"
           },
           "deployment": {
-            "location": "eastus",
+            "location": "[parameters('deploymentLocation')]",
             "properties": {
               "mode": "incremental",
               "parameters": {

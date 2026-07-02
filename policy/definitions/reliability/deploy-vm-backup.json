@@ -5,7 +5,7 @@
     "displayName": "Virtual machines should be protected by Azure Backup",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Audits virtual machines that are not protected by Azure Backup and, when set to DeployIfNotExists, associates them with the specified Recovery Services vault backup policy. Supports the Reliability pillar of the Well-Architected Framework.",
+    "description": "Audits virtual machines that are not protected by Azure Backup and, when set to DeployIfNotExists, associates them with the specified Recovery Services vault backup policy. Azure Backup requires the vault to be in the same subscription and region as the protected VMs, so provide a vault per landing-zone subscription (not a single cross-subscription central vault). Supports the Reliability pillar of the Well-Architected Framework.",
     "metadata": {
       "version": "1.0.0",
       "category": "Backup",
@@ -34,7 +34,7 @@
         "type": "String",
         "metadata": {
           "displayName": "Backup policy id",
-          "description": "Resource id of the Recovery Services vault backup policy to associate.",
+          "description": "Resource id of the Recovery Services vault backup policy to associate. The vault must reside in the same subscription and region as the VMs being protected.",
           "strongType": "Microsoft.RecoveryServices/vaults/backupPolicies"
         }
       }

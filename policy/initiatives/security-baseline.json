@@ -4,7 +4,7 @@
   "properties": {
     "displayName": "Contoso Security Baseline (WAF)",
     "policyType": "Custom",
-    "description": "WAF Security pillar guardrails: no public IPs on NICs, HTTPS-only and TLS 1.2 storage, private storage networking, and Microsoft Defender for Cloud.",
+    "description": "WAF Security pillar guardrails: no public IPs on NICs, HTTPS-only and minimum TLS 1.2 storage, private storage networking, and Microsoft Defender for Cloud plans (VMs, Storage, SQL, Key Vault, Containers, App Service, ARM).",
     "metadata": {
       "version": "1.0.0",
       "category": "Security",
@@ -21,13 +21,13 @@
       "storageHttpsEffect": {
         "type": "String",
         "allowedValues": [ "Audit", "Deny", "Modify", "Disabled" ],
-        "defaultValue": "Modify",
+        "defaultValue": "Audit",
         "metadata": { "displayName": "Effect - storage HTTPS only" }
       },
       "storageTlsEffect": {
         "type": "String",
         "allowedValues": [ "Audit", "Deny", "Modify", "Disabled" ],
-        "defaultValue": "Modify",
+        "defaultValue": "Audit",
         "metadata": { "displayName": "Effect - storage min TLS" }
       },
       "storagePublicAccessEffect": {
@@ -39,7 +39,7 @@
       "defenderEffect": {
         "type": "String",
         "allowedValues": [ "DeployIfNotExists", "AuditIfNotExists", "Disabled" ],
-        "defaultValue": "DeployIfNotExists",
+        "defaultValue": "AuditIfNotExists",
         "metadata": { "displayName": "Effect - Defender for Cloud" }
       }
     },
@@ -73,10 +73,59 @@
         }
       },
       {
-        "policyDefinitionReferenceId": "deployDefenderForCloud",
+        "policyDefinitionReferenceId": "deployDefenderVirtualMachines",
         "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-defender-for-cloud",
         "parameters": {
-          "effect": { "value": "[parameters('defenderEffect')]" }
+          "effect": { "value": "[parameters('defenderEffect')]" },
+          "resourceType": { "value": "VirtualMachines" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "deployDefenderStorageAccounts",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-defender-for-cloud",
+        "parameters": {
+          "effect": { "value": "[parameters('defenderEffect')]" },
+          "resourceType": { "value": "StorageAccounts" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "deployDefenderSqlServers",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-defender-for-cloud",
+        "parameters": {
+          "effect": { "value": "[parameters('defenderEffect')]" },
+          "resourceType": { "value": "SqlServers" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "deployDefenderKeyVaults",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-defender-for-cloud",
+        "parameters": {
+          "effect": { "value": "[parameters('defenderEffect')]" },
+          "resourceType": { "value": "KeyVaults" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "deployDefenderContainers",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-defender-for-cloud",
+        "parameters": {
+          "effect": { "value": "[parameters('defenderEffect')]" },
+          "resourceType": { "value": "Containers" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "deployDefenderAppServices",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-defender-for-cloud",
+        "parameters": {
+          "effect": { "value": "[parameters('defenderEffect')]" },
+          "resourceType": { "value": "AppServices" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "deployDefenderArm",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-defender-for-cloud",
+        "parameters": {
+          "effect": { "value": "[parameters('defenderEffect')]" },
+          "resourceType": { "value": "Arm" }
         }
       }
     ]

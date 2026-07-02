@@ -31,16 +31,8 @@
     },
     "policyRule": {
       "if": {
-        "allOf": [
-          {
-            "field": "[concat('tags[', parameters('tagName'), ']')]",
-            "exists": "false"
-          },
-          {
-            "value": "[resourceGroup().tags[parameters('tagName')]]",
-            "notEquals": ""
-          }
-        ]
+        "field": "[concat('tags[', parameters('tagName'), ']')]",
+        "exists": "false"
       },
       "then": {
         "effect": "[parameters('effect')]",

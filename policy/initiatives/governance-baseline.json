@@ -4,7 +4,7 @@
   "properties": {
     "displayName": "Contoso Governance Baseline (WAF Operational Excellence)",
     "policyType": "Custom",
-    "description": "WAF Operational Excellence / governance guardrails: allowed locations, mandatory tags (Environment, Owner, DataClassification, Workload), tag inheritance from resource group, and centralized diagnostics.",
+    "description": "WAF Operational Excellence / governance guardrails: allowed locations (resources and resource groups), mandatory tags (Environment, Owner, DataClassification, Workload), tag inheritance from resource group, and Key Vault diagnostics forwarding to Log Analytics (clone the diagnostics policy per resource type for broader coverage).",
     "metadata": {
       "version": "1.0.0",
       "category": "Governance",
@@ -38,13 +38,21 @@
       "logAnalyticsWorkspaceId": {
         "type": "String",
         "defaultValue": "",
-        "metadata": { "displayName": "Central Log Analytics workspace id" }
+        "metadata": { "displayName": "Central Log Analytics workspace id (required when the diagnostics effect is DeployIfNotExists)" }
       }
     },
     "policyDefinitions": [
       {
         "policyDefinitionReferenceId": "allowedLocations",
         "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-allowed-locations",
+        "parameters": {
+          "effect": { "value": "[parameters('allowedLocationsEffect')]" },
+          "allowedLocations": { "value": "[parameters('allowedLocations')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "allowedLocationsResourceGroups",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-allowed-locations-rg",
         "parameters": {
           "effect": { "value": "[parameters('allowedLocationsEffect')]" },
           "allowedLocations": { "value": "[parameters('allowedLocations')]" }

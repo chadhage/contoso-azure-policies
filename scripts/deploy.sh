@@ -4,7 +4,7 @@
 # to an Enterprise-Scale Landing Zone management group hierarchy.
 #
 # Usage:
-#   ./scripts/deploy.sh --mg contoso --location eastus [--what-if]
+#   ./scripts/deploy.sh --mg contoso --location eastus [--what-if] [--skip-assignments]
 #
 # Requires: Azure CLI (az) and jq.
 # =====================================================================================
@@ -13,12 +13,14 @@ set -euo pipefail
 MG_ID=""
 LOCATION="eastus"
 WHAT_IF="false"
+SKIP_ASSIGNMENTS="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --mg) MG_ID="$2"; shift 2 ;;
     --location) LOCATION="$2"; shift 2 ;;
     --what-if) WHAT_IF="true"; shift ;;
+    --skip-assignments) SKIP_ASSIGNMENTS="true"; shift ;;
     *) echo "Unknown argument: $1" >&2; exit 1 ;;
   esac
 done
@@ -87,6 +89,12 @@ done < <(find "${REPO_ROOT}/policy/initiatives" -name '*.json' -print0)
 # ------------------------------------------------------------------------------
 echo ""
 echo "[3/3] Creating assignments..."
+if [[ "$SKIP_ASSIGNMENTS" == "true" ]]; then
+  echo "  Skipped (--skip-assignments)."
+  echo ""
+  echo "==> Definitions and initiatives deployed to '${MG_ID}'. Assign initiatives yourself or re-run without --skip-assignments."
+  exit 0
+fi
 MANIFEST="${REPO_ROOT}/policy/assignments/assignment-manifest.json"
 count=$(jq '.assignments | length' "$MANIFEST")
 for (( i=0; i<count; i++ )); do

@@ -22,6 +22,11 @@
 .PARAMETER WhatIf
     Preview actions without creating anything.
 
+.PARAMETER SkipAssignments
+    Create only the policy definitions and initiatives, skipping the
+    manifest-driven assignments. Useful when you assign initiatives yourself
+    (for example from the site's deployment wizard).
+
 .EXAMPLE
     ./scripts/deploy.ps1 -RootManagementGroupId contoso -Location eastus -WhatIf
 #>
@@ -31,7 +36,10 @@ param(
     [string]$RootManagementGroupId,
 
     [Parameter(Mandatory = $false)]
-    [string]$Location = 'eastus'
+    [string]$Location = 'eastus',
+
+    [Parameter(Mandatory = $false)]
+    [switch]$SkipAssignments
 )
 
 $ErrorActionPreference = 'Stop'
@@ -97,6 +105,11 @@ foreach ($file in $initiativeFiles) {
 # 3. Assignments
 # ------------------------------------------------------------------------------
 Write-Host "`n[3/3] Creating assignments..." -ForegroundColor Yellow
+if ($SkipAssignments) {
+    Write-Host "  Skipped (-SkipAssignments)." -ForegroundColor DarkGray
+    Write-Host "`n==> Definitions and initiatives deployed to '$RootManagementGroupId'. Assign initiatives yourself or re-run without -SkipAssignments." -ForegroundColor Green
+    return
+}
 $manifest = Get-Content (Join-Path $repoRoot 'policy/assignments/assignment-manifest.json') -Raw | ConvertFrom-Json
 foreach ($a in $manifest.assignments) {
     $scope = "/providers/Microsoft.Management/managementGroups/$($a.managementGroup)"

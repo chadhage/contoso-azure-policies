@@ -241,9 +241,8 @@ code { font-family: var(--mono); font-size: 0.88em; }
 .copyright { max-width: var(--maxw); margin: 2rem auto 0; padding-top: 1.2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; text-align: center; }
 
 /* ---------- Wizard ---------- */
-.wizard { display: grid; grid-template-columns: 1fr 1.15fr; gap: 1.6rem; align-items: start; }
-@media (max-width: 940px) { .wizard { grid-template-columns: 1fr; } }
-.wizard-form { display: flex; flex-direction: column; gap: 1.1rem; }
+.wizard { display: flex; flex-direction: column; gap: 1.8rem; }
+.wizard-form { display: flex; flex-direction: column; gap: 1.2rem; }
 .wizard-form fieldset {
   border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.2rem 1.3rem;
   background: var(--surface); margin: 0;
@@ -256,8 +255,8 @@ code { font-family: var(--mono); font-size: 0.88em; }
   width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
   font-size: 0.78rem; color: #fff; background: linear-gradient(135deg, var(--brand), var(--accent));
 }
-.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
-@media (max-width: 540px) { .field-grid { grid-template-columns: 1fr; } }
+.field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem 1.3rem; }
+.field-grid .field-wide { grid-column: 1 / -1; }
 .wizard-form label {
   display: flex; flex-direction: column; gap: 0.35rem;
   font-size: 0.82rem; font-weight: 600; color: var(--text-dim);
@@ -269,6 +268,7 @@ code { font-family: var(--mono); font-size: 0.88em; }
   padding: 0.5rem 0.65rem; width: 100%;
 }
 .wizard-form input[type="text"]:focus, .wizard-form select:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+.wizard-form select { max-width: 420px; }
 .field-label { margin: 1rem 0 0.5rem; font-size: 0.82rem; font-weight: 600; color: var(--text-dim); }
 .pillar-check { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; }
 .pillar-check label {
@@ -277,7 +277,7 @@ code { font-family: var(--mono); font-size: 0.88em; }
 }
 .pillar-check input { accent-color: var(--brand); width: 16px; height: 16px; }
 
-.wizard-output { position: sticky; top: 84px; }
+.wizard-output { position: static; }
 .wizard-out-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
 .wizard-actions { display: flex; gap: 0.4rem; }
 .btn.sm { padding: 0.35rem 0.8rem; font-size: 0.82rem; }

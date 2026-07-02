@@ -1,0 +1,63 @@
+{
+  "name": "contoso-inherit-tag-from-rg",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Inherit a tag from the resource group if missing",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Adds or replaces a specified tag on a resource with the value from its parent resource group, so cost and ownership tags flow down automatically. Supports the Governance / Operational Excellence pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Tags",
+      "wafPillar": "Governance",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect"
+        },
+        "allowedValues": [ "Modify", "Disabled" ],
+        "defaultValue": "Modify"
+      },
+      "tagName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Tag name",
+          "description": "Name of the tag to inherit from the resource group."
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "[concat('tags[', parameters('tagName'), ']')]",
+            "exists": "false"
+          },
+          {
+            "value": "[resourceGroup().tags[parameters('tagName')]]",
+            "notEquals": ""
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "conflictEffect": "audit",
+          "operations": [
+            {
+              "operation": "add",
+              "field": "[concat('tags[', parameters('tagName'), ']')]",
+              "value": "[resourceGroup().tags[parameters('tagName')]]"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "contoso-require-vm-availability-zone",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Virtual machines should be deployed to an availability zone",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Requires that virtual machines are pinned to an availability zone to improve intra-region resiliency. Supports the Reliability pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Compute",
+      "wafPillar": "Reliability",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "anyOf": [
+              {
+                "field": "Microsoft.Compute/virtualMachines/zones[*]",
+                "exists": "false"
+              },
+              {
+                "count": {
+                  "field": "Microsoft.Compute/virtualMachines/zones[*]"
+                },
+                "equals": 0
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

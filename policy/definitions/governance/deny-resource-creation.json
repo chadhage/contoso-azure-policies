@@ -1,0 +1,37 @@
+{
+  "name": "contoso-deny-resource-creation",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Deny creation of new resources (decommissioned scope)",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Blocks creation of any new resource. Assigned to the Decommissioned management group to freeze retired subscriptions and prevent zombie spend. Supports the Governance / Operational Excellence pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "General",
+      "wafPillar": "Governance",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect"
+        },
+        "allowedValues": [ "Deny", "Audit", "Disabled" ],
+        "defaultValue": "Deny"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "notIn": [
+          "Microsoft.Resources/subscriptions/resourceGroups"
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

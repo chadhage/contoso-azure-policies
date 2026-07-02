@@ -1,0 +1,102 @@
+{
+  "name": "contoso-governance-baseline",
+  "type": "Microsoft.Authorization/policySetDefinitions",
+  "properties": {
+    "displayName": "Contoso Governance Baseline (WAF Operational Excellence)",
+    "policyType": "Custom",
+    "description": "WAF Operational Excellence / governance guardrails: allowed locations, mandatory tags (Environment, Owner, DataClassification, Workload), tag inheritance from resource group, and centralized diagnostics.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Governance",
+      "wafPillar": "Governance",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "allowedLocationsEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Deny",
+        "metadata": { "displayName": "Effect - allowed locations" }
+      },
+      "allowedLocations": {
+        "type": "Array",
+        "defaultValue": [ "eastus", "westus3", "westeurope" ],
+        "metadata": { "displayName": "Allowed locations" }
+      },
+      "requiredTagsEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - required tags" }
+      },
+      "diagnosticsEffect": {
+        "type": "String",
+        "allowedValues": [ "DeployIfNotExists", "AuditIfNotExists", "Disabled" ],
+        "defaultValue": "AuditIfNotExists",
+        "metadata": { "displayName": "Effect - diagnostic settings" }
+      },
+      "logAnalyticsWorkspaceId": {
+        "type": "String",
+        "defaultValue": "",
+        "metadata": { "displayName": "Central Log Analytics workspace id" }
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "allowedLocations",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-allowed-locations",
+        "parameters": {
+          "effect": { "value": "[parameters('allowedLocationsEffect')]" },
+          "allowedLocations": { "value": "[parameters('allowedLocations')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireTagEnvironment",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-tag",
+        "parameters": {
+          "effect": { "value": "[parameters('requiredTagsEffect')]" },
+          "tagName": { "value": "Environment" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireTagOwner",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-tag",
+        "parameters": {
+          "effect": { "value": "[parameters('requiredTagsEffect')]" },
+          "tagName": { "value": "Owner" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireTagDataClassification",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-tag",
+        "parameters": {
+          "effect": { "value": "[parameters('requiredTagsEffect')]" },
+          "tagName": { "value": "DataClassification" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireTagWorkload",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-tag",
+        "parameters": {
+          "effect": { "value": "[parameters('requiredTagsEffect')]" },
+          "tagName": { "value": "Workload" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "inheritCostCenterFromRg",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-inherit-tag-from-rg",
+        "parameters": {
+          "tagName": { "value": "CostCenter" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "deployDiagnosticSettingsToLaw",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-diagnostic-settings-to-law",
+        "parameters": {
+          "effect": { "value": "[parameters('diagnosticsEffect')]" },
+          "logAnalyticsWorkspaceId": { "value": "[parameters('logAnalyticsWorkspaceId')]" }
+        }
+      }
+    ]
+  }
+}

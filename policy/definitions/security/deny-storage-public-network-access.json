@@ -1,0 +1,44 @@
+{
+  "name": "contoso-deny-storage-public-network-access",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Storage accounts should disable public network access",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Requires storage accounts to disable public network access so they are reachable only through private endpoints or trusted services. Supports the Security pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Storage",
+      "wafPillar": "Security",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            "field": "Microsoft.Storage/storageAccounts/publicNetworkAccess",
+            "notEquals": "Disabled"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "contoso-require-sandbox-auto-shutdown",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Sandbox virtual machines should have an auto-shutdown schedule",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Audits virtual machines that do not have an associated DevTest Labs auto-shutdown schedule, which prevents idle machines from running (and billing) overnight. Intended for the Sandbox management group. Supports the Cost Optimization pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Compute",
+      "wafPillar": "Cost",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "AuditIfNotExists", "Disabled" ],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Compute/virtualMachines"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.DevTestLab/schedules",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.DevTestLab/schedules/status",
+                "equals": "Enabled"
+              },
+              {
+                "field": "Microsoft.DevTestLab/schedules/taskType",
+                "equals": "ComputeVmShutdownTask"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

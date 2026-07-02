@@ -1,0 +1,57 @@
+{
+  "name": "contoso-enforce-storage-https-only",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Storage accounts should require secure transfer (HTTPS only)",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Ensures storage accounts only accept traffic over HTTPS. Supports Modify to auto-remediate existing accounts. Supports the Security pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Storage",
+      "wafPillar": "Security",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "Audit", "Deny", "Modify", "Disabled" ],
+        "defaultValue": "Modify"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            "field": "Microsoft.Storage/storageAccounts/supportsHttpsTrafficOnly",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/17d1049b-9a84-46fb-8f53-869881c3d3ab"
+          ],
+          "conflictEffect": "audit",
+          "operations": [
+            {
+              "operation": "addOrReplace",
+              "field": "Microsoft.Storage/storageAccounts/supportsHttpsTrafficOnly",
+              "value": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

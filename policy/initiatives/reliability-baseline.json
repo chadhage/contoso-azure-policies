@@ -1,0 +1,83 @@
+{
+  "name": "contoso-reliability-baseline",
+  "type": "Microsoft.Authorization/policySetDefinitions",
+  "properties": {
+    "displayName": "Contoso Reliability Baseline (WAF)",
+    "policyType": "Custom",
+    "description": "WAF Reliability pillar guardrails: zone/geo-redundant storage, VM availability zones, geo-redundant SQL backups, and VM backup protection.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Reliability",
+      "wafPillar": "Reliability",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "storageZrsEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - storage redundant SKU" }
+      },
+      "vmZoneEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - VM availability zone" }
+      },
+      "sqlBackupEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - SQL geo-redundant backup" }
+      },
+      "vmBackupEffect": {
+        "type": "String",
+        "allowedValues": [ "AuditIfNotExists", "DeployIfNotExists", "Disabled" ],
+        "defaultValue": "AuditIfNotExists",
+        "metadata": { "displayName": "Effect - VM backup" }
+      },
+      "vmBackupVaultLocation": {
+        "type": "String",
+        "defaultValue": "eastus",
+        "metadata": { "displayName": "VM backup vault location" }
+      },
+      "vmBackupPolicyId": {
+        "type": "String",
+        "defaultValue": "",
+        "metadata": { "displayName": "VM backup policy resource id" }
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "requireStorageZrs",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-storage-account-zrs",
+        "parameters": {
+          "effect": { "value": "[parameters('storageZrsEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireVmZone",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-vm-availability-zone",
+        "parameters": {
+          "effect": { "value": "[parameters('vmZoneEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireSqlGeoBackup",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-sql-geo-redundant-backup",
+        "parameters": {
+          "effect": { "value": "[parameters('sqlBackupEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "deployVmBackup",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-vm-backup",
+        "parameters": {
+          "effect": { "value": "[parameters('vmBackupEffect')]" },
+          "vaultLocation": { "value": "[parameters('vmBackupVaultLocation')]" },
+          "backupPolicyId": { "value": "[parameters('vmBackupPolicyId')]" }
+        }
+      }
+    ]
+  }
+}

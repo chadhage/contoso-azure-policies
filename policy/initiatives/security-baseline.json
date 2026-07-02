@@ -1,0 +1,84 @@
+{
+  "name": "contoso-security-baseline",
+  "type": "Microsoft.Authorization/policySetDefinitions",
+  "properties": {
+    "displayName": "Contoso Security Baseline (WAF)",
+    "policyType": "Custom",
+    "description": "WAF Security pillar guardrails: no public IPs on NICs, HTTPS-only and TLS 1.2 storage, private storage networking, and Microsoft Defender for Cloud.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Security",
+      "wafPillar": "Security",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "denyPublicIpEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - deny public IP on NIC" }
+      },
+      "storageHttpsEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Modify", "Disabled" ],
+        "defaultValue": "Modify",
+        "metadata": { "displayName": "Effect - storage HTTPS only" }
+      },
+      "storageTlsEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Modify", "Disabled" ],
+        "defaultValue": "Modify",
+        "metadata": { "displayName": "Effect - storage min TLS" }
+      },
+      "storagePublicAccessEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - storage public network access" }
+      },
+      "defenderEffect": {
+        "type": "String",
+        "allowedValues": [ "DeployIfNotExists", "AuditIfNotExists", "Disabled" ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": { "displayName": "Effect - Defender for Cloud" }
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "denyPublicIpOnNic",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deny-public-ip-on-nic",
+        "parameters": {
+          "effect": { "value": "[parameters('denyPublicIpEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "enforceStorageHttpsOnly",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-enforce-storage-https-only",
+        "parameters": {
+          "effect": { "value": "[parameters('storageHttpsEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "enforceStorageMinTls",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-enforce-storage-min-tls",
+        "parameters": {
+          "effect": { "value": "[parameters('storageTlsEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "denyStoragePublicNetworkAccess",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deny-storage-public-network-access",
+        "parameters": {
+          "effect": { "value": "[parameters('storagePublicAccessEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "deployDefenderForCloud",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deploy-defender-for-cloud",
+        "parameters": {
+          "effect": { "value": "[parameters('defenderEffect')]" }
+        }
+      }
+    ]
+  }
+}

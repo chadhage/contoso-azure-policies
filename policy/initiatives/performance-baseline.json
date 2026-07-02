@@ -1,0 +1,58 @@
+{
+  "name": "contoso-performance-baseline",
+  "type": "Microsoft.Authorization/policySetDefinitions",
+  "properties": {
+    "displayName": "Contoso Performance Efficiency Baseline (WAF)",
+    "policyType": "Custom",
+    "description": "WAF Performance Efficiency pillar guardrails: premium managed disks for production VMs, accelerated networking on NICs, and minimum App Service plan tiers for production.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Performance",
+      "wafPillar": "Performance",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "premiumDiskEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - premium disk for prod" }
+      },
+      "acceleratedNetworkingEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - accelerated networking" }
+      },
+      "appServiceSkuEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - App Service min SKU" }
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "requirePremiumDiskForProd",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-premium-disk-for-prod",
+        "parameters": {
+          "effect": { "value": "[parameters('premiumDiskEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireAcceleratedNetworking",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-accelerated-networking",
+        "parameters": {
+          "effect": { "value": "[parameters('acceleratedNetworkingEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireAppServiceMinSku",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-appservice-min-sku",
+        "parameters": {
+          "effect": { "value": "[parameters('appServiceSkuEffect')]" }
+        }
+      }
+    ]
+  }
+}

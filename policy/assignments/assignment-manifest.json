@@ -1,0 +1,164 @@
+{
+  "$schema": "./assignment-manifest.schema.json",
+  "description": "Maps Contoso WAF initiatives to management group scopes with the correct enforcement posture per landing zone. Consumed by scripts/deploy.ps1 and scripts/deploy.sh. Effects follow the Audit-first, Deny-later lifecycle; promote effects per docs/deployment-guide.md.",
+  "assignments": [
+    {
+      "name": "contoso-gov",
+      "displayName": "Contoso Governance Baseline",
+      "managementGroup": "contoso",
+      "initiative": "contoso-governance-baseline",
+      "identity": "SystemAssigned",
+      "location": "eastus",
+      "roleDefinitionIds": [
+        "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+        "/providers/Microsoft.Authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa"
+      ],
+      "parameters": {
+        "allowedLocationsEffect": { "value": "Deny" },
+        "allowedLocations": { "value": [ "eastus", "westus3", "westeurope" ] },
+        "requiredTagsEffect": { "value": "Audit" },
+        "diagnosticsEffect": { "value": "AuditIfNotExists" }
+      },
+      "nonComplianceMessages": [
+        { "message": "This resource violates a Contoso governance guardrail (location or required tags)." }
+      ]
+    },
+    {
+      "name": "contoso-sec",
+      "displayName": "Contoso Security Baseline",
+      "managementGroup": "contoso",
+      "initiative": "contoso-security-baseline",
+      "identity": "SystemAssigned",
+      "location": "eastus",
+      "roleDefinitionIds": [
+        "/providers/Microsoft.Authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd",
+        "/providers/Microsoft.Authorization/roleDefinitions/17d1049b-9a84-46fb-8f53-869881c3d3ab"
+      ],
+      "parameters": {
+        "denyPublicIpEffect": { "value": "Audit" },
+        "storageHttpsEffect": { "value": "Modify" },
+        "storageTlsEffect": { "value": "Modify" },
+        "storagePublicAccessEffect": { "value": "Audit" },
+        "defenderEffect": { "value": "DeployIfNotExists" }
+      },
+      "nonComplianceMessages": [
+        { "message": "This resource violates a Contoso security guardrail (public exposure, TLS, or encryption)." }
+      ]
+    },
+    {
+      "name": "contoso-cost-sbx",
+      "displayName": "Contoso Cost Baseline (Sandbox)",
+      "managementGroup": "contoso-sandbox",
+      "initiative": "contoso-cost-baseline",
+      "identity": "None",
+      "location": "eastus",
+      "parameters": {
+        "allowedVmSkusEffect": { "value": "Deny" },
+        "allowedVmSkus": { "value": [ "Standard_B2s", "Standard_B2ms", "Standard_D2s_v5" ] },
+        "expensiveVmEffect": { "value": "Deny" },
+        "costCenterTagEffect": { "value": "Deny" },
+        "autoShutdownEffect": { "value": "AuditIfNotExists" }
+      },
+      "nonComplianceMessages": [
+        { "message": "Sandbox workloads are limited to small/burstable SKUs and must have cost controls." }
+      ]
+    },
+    {
+      "name": "contoso-cost-lz",
+      "displayName": "Contoso Cost Baseline (Landing Zones)",
+      "managementGroup": "contoso-landingzones",
+      "initiative": "contoso-cost-baseline",
+      "identity": "None",
+      "location": "eastus",
+      "parameters": {
+        "allowedVmSkusEffect": { "value": "Deny" },
+        "expensiveVmEffect": { "value": "Audit" },
+        "costCenterTagEffect": { "value": "Audit" },
+        "autoShutdownEffect": { "value": "Disabled" }
+      }
+    },
+    {
+      "name": "contoso-rel-platform",
+      "displayName": "Contoso Reliability Baseline (Platform)",
+      "managementGroup": "contoso-platform",
+      "initiative": "contoso-reliability-baseline",
+      "identity": "SystemAssigned",
+      "location": "eastus",
+      "roleDefinitionIds": [
+        "/providers/Microsoft.Authorization/roleDefinitions/5e467623-bb1f-42f4-a55d-6e525e11384b"
+      ],
+      "parameters": {
+        "storageZrsEffect": { "value": "Deny" },
+        "vmZoneEffect": { "value": "Audit" },
+        "sqlBackupEffect": { "value": "Deny" },
+        "vmBackupEffect": { "value": "AuditIfNotExists" }
+      }
+    },
+    {
+      "name": "contoso-rel-lz",
+      "displayName": "Contoso Reliability Baseline (Landing Zones)",
+      "managementGroup": "contoso-landingzones",
+      "initiative": "contoso-reliability-baseline",
+      "identity": "SystemAssigned",
+      "location": "eastus",
+      "roleDefinitionIds": [
+        "/providers/Microsoft.Authorization/roleDefinitions/5e467623-bb1f-42f4-a55d-6e525e11384b"
+      ],
+      "parameters": {
+        "storageZrsEffect": { "value": "Audit" },
+        "vmZoneEffect": { "value": "Audit" },
+        "sqlBackupEffect": { "value": "Audit" },
+        "vmBackupEffect": { "value": "AuditIfNotExists" }
+      }
+    },
+    {
+      "name": "contoso-sec-corp",
+      "displayName": "Contoso Security Baseline (Corp - strict)",
+      "managementGroup": "contoso-landingzones-corp",
+      "initiative": "contoso-security-baseline",
+      "identity": "SystemAssigned",
+      "location": "eastus",
+      "roleDefinitionIds": [
+        "/providers/Microsoft.Authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd",
+        "/providers/Microsoft.Authorization/roleDefinitions/17d1049b-9a84-46fb-8f53-869881c3d3ab"
+      ],
+      "parameters": {
+        "denyPublicIpEffect": { "value": "Deny" },
+        "storageHttpsEffect": { "value": "Modify" },
+        "storageTlsEffect": { "value": "Modify" },
+        "storagePublicAccessEffect": { "value": "Deny" },
+        "defenderEffect": { "value": "DeployIfNotExists" }
+      },
+      "nonComplianceMessages": [
+        { "message": "Corp workloads must be private: no public IPs and no public storage network access." }
+      ]
+    },
+    {
+      "name": "contoso-perf-online",
+      "displayName": "Contoso Performance Baseline (Online)",
+      "managementGroup": "contoso-landingzones-online",
+      "initiative": "contoso-performance-baseline",
+      "identity": "None",
+      "location": "eastus",
+      "parameters": {
+        "premiumDiskEffect": { "value": "Audit" },
+        "acceleratedNetworkingEffect": { "value": "Audit" },
+        "appServiceSkuEffect": { "value": "Audit" }
+      }
+    },
+    {
+      "name": "contoso-deny-decomm",
+      "displayName": "Contoso Deny Resource Creation (Decommissioned)",
+      "managementGroup": "contoso-decommissioned",
+      "policyDefinition": "contoso-deny-resource-creation",
+      "identity": "None",
+      "location": "eastus",
+      "parameters": {
+        "effect": { "value": "Deny" }
+      },
+      "nonComplianceMessages": [
+        { "message": "This subscription is decommissioned. Creating new resources is blocked." }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "name": "contoso-cost-baseline",
+  "type": "Microsoft.Authorization/policySetDefinitions",
+  "properties": {
+    "displayName": "Contoso Cost Optimization Baseline (WAF)",
+    "policyType": "Custom",
+    "description": "WAF Cost Optimization pillar guardrails: allowed VM SKUs, blocked expensive VM series, required CostCenter tag, and sandbox auto-shutdown.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Cost",
+      "wafPillar": "Cost",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "allowedVmSkusEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Deny",
+        "metadata": { "displayName": "Effect - allowed VM SKUs" }
+      },
+      "allowedVmSkus": {
+        "type": "Array",
+        "defaultValue": [
+          "Standard_B2s", "Standard_B2ms",
+          "Standard_D2s_v5", "Standard_D4s_v5", "Standard_D8s_v5",
+          "Standard_E4s_v5", "Standard_E8s_v5",
+          "Standard_F4s_v2", "Standard_F8s_v2"
+        ],
+        "metadata": { "displayName": "Allowed VM SKUs" }
+      },
+      "expensiveVmEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Deny",
+        "metadata": { "displayName": "Effect - expensive VM series" }
+      },
+      "costCenterTagEffect": {
+        "type": "String",
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit",
+        "metadata": { "displayName": "Effect - CostCenter tag" }
+      },
+      "autoShutdownEffect": {
+        "type": "String",
+        "allowedValues": [ "AuditIfNotExists", "Disabled" ],
+        "defaultValue": "AuditIfNotExists",
+        "metadata": { "displayName": "Effect - sandbox auto-shutdown" }
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "allowedVmSkus",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-allowed-vm-skus",
+        "parameters": {
+          "effect": { "value": "[parameters('allowedVmSkusEffect')]" },
+          "allowedSkus": { "value": "[parameters('allowedVmSkus')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "denyExpensiveVmSeries",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-deny-expensive-vm-series",
+        "parameters": {
+          "effect": { "value": "[parameters('expensiveVmEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireBudgetTag",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-budget-tag",
+        "parameters": {
+          "effect": { "value": "[parameters('costCenterTagEffect')]" }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "requireSandboxAutoShutdown",
+        "policyDefinitionId": "{{MANAGEMENT_GROUP_SCOPE}}/providers/Microsoft.Authorization/policyDefinitions/contoso-require-sandbox-auto-shutdown",
+        "parameters": {
+          "effect": { "value": "[parameters('autoShutdownEffect')]" }
+        }
+      }
+    ]
+  }
+}

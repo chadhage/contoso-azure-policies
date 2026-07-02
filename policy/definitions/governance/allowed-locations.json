@@ -1,0 +1,57 @@
+{
+  "name": "contoso-allowed-locations",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Allowed locations for resource deployment",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Restricts the regions into which resources can be deployed to Contoso's approved data-residency regions. Global-type resources are exempt. Supports the Governance / Operational Excellence pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "General",
+      "wafPillar": "Governance",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Deny"
+      },
+      "allowedLocations": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed locations",
+          "description": "The list of permitted Azure regions.",
+          "strongType": "location"
+        },
+        "defaultValue": [ "eastus", "westus3", "westeurope" ]
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "location",
+            "notIn": "[parameters('allowedLocations')]"
+          },
+          {
+            "field": "location",
+            "notEquals": "global"
+          },
+          {
+            "field": "type",
+            "notEquals": "Microsoft.AzureActiveDirectory/b2cDirectories"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

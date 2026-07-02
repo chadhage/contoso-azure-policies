@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://contoso.example/policy/assignment-manifest.schema.json",
+  "title": "Contoso Policy Assignment Manifest",
+  "type": "object",
+  "required": [ "assignments" ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "description": { "type": "string" },
+    "assignments": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/assignment" }
+    }
+  },
+  "definitions": {
+    "assignment": {
+      "type": "object",
+      "required": [ "name", "displayName", "managementGroup", "identity", "location" ],
+      "oneOf": [
+        { "required": [ "initiative" ] },
+        { "required": [ "policyDefinition" ] }
+      ],
+      "properties": {
+        "name": { "type": "string", "maxLength": 24 },
+        "displayName": { "type": "string" },
+        "managementGroup": { "type": "string" },
+        "initiative": { "type": "string" },
+        "policyDefinition": { "type": "string" },
+        "identity": { "type": "string", "enum": [ "None", "SystemAssigned" ] },
+        "location": { "type": "string" },
+        "roleDefinitionIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "parameters": { "type": "object" },
+        "nonComplianceMessages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "message" ],
+            "properties": {
+              "message": { "type": "string" },
+              "policyDefinitionReferenceId": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "contoso-allowed-vm-skus",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Allowed virtual machine SKUs",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Restricts the virtual machine sizes that can be deployed to a curated, cost-appropriate list set per landing zone. Supports the Cost Optimization pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Compute",
+      "wafPillar": "Cost",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Deny"
+      },
+      "allowedSkus": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed VM SKUs",
+          "description": "The list of permitted VM sizes.",
+          "strongType": "vmSKUs"
+        },
+        "defaultValue": [
+          "Standard_B2s",
+          "Standard_B2ms",
+          "Standard_D2s_v5",
+          "Standard_D4s_v5",
+          "Standard_D8s_v5",
+          "Standard_E4s_v5",
+          "Standard_E8s_v5",
+          "Standard_F4s_v2",
+          "Standard_F8s_v2"
+        ]
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "not": {
+              "field": "Microsoft.Compute/virtualMachines/sku.name",
+              "in": "[parameters('allowedSkus')]"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

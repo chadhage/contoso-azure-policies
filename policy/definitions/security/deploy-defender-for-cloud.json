@@ -1,0 +1,93 @@
+{
+  "name": "contoso-deploy-defender-for-cloud",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Microsoft Defender for Cloud plan should be enabled",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Ensures a Microsoft Defender for Cloud plan is enabled at the Standard tier for the specified resource type, deploying it when missing. Supports the Security pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Security Center",
+      "wafPillar": "Security",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "DeployIfNotExists", "AuditIfNotExists", "Disabled" ],
+        "defaultValue": "DeployIfNotExists"
+      },
+      "pricingTier": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Defender plan pricing tier"
+        },
+        "allowedValues": [ "Standard", "Free" ],
+        "defaultValue": "Standard"
+      },
+      "resourceType": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Defender plan name",
+          "description": "The Defender for Cloud plan to enable (e.g. VirtualMachines, StorageAccounts, SqlServers, KeyVaults, Containers)."
+        },
+        "defaultValue": "VirtualMachines"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Resources/subscriptions"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Security/pricings",
+          "name": "[parameters('resourceType')]",
+          "deploymentScope": "subscription",
+          "existenceScope": "subscription",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd"
+          ],
+          "existenceCondition": {
+            "field": "Microsoft.Security/pricings/pricingTier",
+            "equals": "[parameters('pricingTier')]"
+          },
+          "deployment": {
+            "location": "eastus",
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "pricingTier": { "value": "[parameters('pricingTier')]" },
+                "resourceType": { "value": "[parameters('resourceType')]" }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "pricingTier": { "type": "string" },
+                  "resourceType": { "type": "string" }
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.Security/pricings",
+                    "apiVersion": "2024-01-01",
+                    "name": "[parameters('resourceType')]",
+                    "properties": {
+                      "pricingTier": "[parameters('pricingTier')]"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

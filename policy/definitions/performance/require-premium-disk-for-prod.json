@@ -1,0 +1,56 @@
+{
+  "name": "contoso-require-premium-disk-for-prod",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Production VMs should use Premium SSD or better managed disks",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Requires managed disks attached to production virtual machines to use a high-performance SKU (Premium SSD, Premium SSD v2, or Ultra) to meet latency and IOPS targets. Scoped by the Environment tag. Supports the Performance Efficiency pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Compute",
+      "wafPillar": "Performance",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect"
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit"
+      },
+      "allowedDiskSkus": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed disk SKUs"
+        },
+        "defaultValue": [ "Premium_LRS", "PremiumV2_LRS", "UltraSSD_LRS", "Premium_ZRS" ]
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/disks"
+          },
+          {
+            "field": "tags['Environment']",
+            "equals": "Production"
+          },
+          {
+            "not": {
+              "field": "Microsoft.Compute/disks/sku.name",
+              "in": "[parameters('allowedDiskSkus')]"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

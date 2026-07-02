@@ -1,0 +1,56 @@
+{
+  "name": "contoso-require-appservice-min-sku",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Production App Service plans should meet a minimum SKU tier",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Requires App Service plans tagged Production to run on a performant tier (PremiumV2, PremiumV3, or Isolated) that supports autoscale, more compute, and zone redundancy. Supports the Performance Efficiency pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "App Service",
+      "wafPillar": "Performance",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect"
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit"
+      },
+      "allowedTiers": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed App Service plan tiers"
+        },
+        "defaultValue": [ "PremiumV2", "PremiumV3", "Isolated", "IsolatedV2" ]
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Web/serverfarms"
+          },
+          {
+            "field": "tags['Environment']",
+            "equals": "Production"
+          },
+          {
+            "not": {
+              "field": "Microsoft.Web/serverfarms/sku.tier",
+              "in": "[parameters('allowedTiers')]"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

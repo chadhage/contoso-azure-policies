@@ -1,0 +1,69 @@
+name: policy-validation
+
+# Validates policy JSON and previews changes on pull requests that touch policy artifacts.
+on:
+  pull_request:
+    paths:
+      - 'policy/**'
+      - 'management-groups/**'
+      - 'scripts/**'
+      - '.github/workflows/policy-validation.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  lint:
+    name: Lint policy JSON
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r -d '' f; do
+            if ! jq empty "$f" >/dev/null 2>&1; then
+              echo "::error file=$f::Invalid JSON"
+              fail=1
+            fi
+          done < <(find policy -name '*.json' -print0)
+          exit $fail
+
+      - name: Check required policy metadata (wafPillar, version, category)
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r -d '' f; do
+            for key in wafPillar version category; do
+              if ! jq -e ".properties.metadata.$key" "$f" >/dev/null 2>&1; then
+                echo "::error file=$f::Missing metadata.$key"
+                fail=1
+              fi
+            done
+          done < <(find policy/definitions policy/initiatives -name '*.json' -print0)
+          exit $fail
+
+  whatif:
+    name: What-if against management group
+    runs-on: ubuntu-latest
+    needs: lint
+    # Requires OIDC federation configured for the platform deployment identity.
+    if: ${{ vars.AZURE_CLIENT_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Preview deployment (dry run)
+        shell: bash
+        run: |
+          chmod +x scripts/deploy.sh
+          ./scripts/deploy.sh --mg "${{ vars.ROOT_MANAGEMENT_GROUP_ID }}" --location "${{ vars.LOCATION }}" --what-if

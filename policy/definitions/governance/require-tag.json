@@ -1,0 +1,43 @@
+{
+  "name": "contoso-require-tag",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Require a specified tag on resources",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Requires the presence of a specified tag on resources. Instantiate once per mandatory tag (Environment, Owner, DataClassification, Workload) in the governance initiative. Supports the Governance / Operational Excellence pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Tags",
+      "wafPillar": "Governance",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit"
+      },
+      "tagName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Tag name",
+          "description": "Name of the tag that must be present."
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "[concat('tags[', parameters('tagName'), ']')]",
+        "exists": "false"
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

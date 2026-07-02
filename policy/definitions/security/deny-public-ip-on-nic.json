@@ -1,0 +1,44 @@
+{
+  "name": "contoso-deny-public-ip-on-nic",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Network interfaces should not have a public IP address",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Prevents attaching a public IP address directly to a network interface, forcing ingress/egress through controlled platform services (Azure Firewall, App Gateway, Load Balancer). Supports the Security pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Network",
+      "wafPillar": "Security",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/networkInterfaces"
+          },
+          {
+            "field": "Microsoft.Network/networkInterfaces/ipConfigurations[*].publicIpAddress.id",
+            "exists": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

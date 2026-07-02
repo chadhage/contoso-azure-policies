@@ -1,0 +1,43 @@
+{
+  "name": "contoso-require-budget-tag",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Resources must carry a CostCenter tag for chargeback",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Requires a non-empty CostCenter tag on resources so spend can be attributed to a budget owner. Supports the Cost Optimization pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Tags",
+      "wafPillar": "Cost",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit"
+      },
+      "tagName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Tag name"
+        },
+        "defaultValue": "CostCenter"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "[concat('tags[', parameters('tagName'), ']')]",
+        "exists": "false"
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

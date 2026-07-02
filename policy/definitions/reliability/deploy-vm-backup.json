@@ -1,0 +1,104 @@
+{
+  "name": "contoso-deploy-vm-backup",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Virtual machines should be protected by Azure Backup",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Audits virtual machines that are not protected by Azure Backup and, when set to DeployIfNotExists, associates them with the specified Recovery Services vault backup policy. Supports the Reliability pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Backup",
+      "wafPillar": "Reliability",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "AuditIfNotExists", "DeployIfNotExists", "Disabled" ],
+        "defaultValue": "AuditIfNotExists"
+      },
+      "vaultLocation": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Recovery Services vault location",
+          "description": "Only VMs in this location are evaluated; must match the vault region.",
+          "strongType": "location"
+        }
+      },
+      "backupPolicyId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Backup policy id",
+          "description": "Resource id of the Recovery Services vault backup policy to associate.",
+          "strongType": "Microsoft.RecoveryServices/vaults/backupPolicies"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "field": "location",
+            "equals": "[parameters('vaultLocation')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.RecoveryServices/backupprotecteditems",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/5e467623-bb1f-42f4-a55d-6e525e11384b"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "vmName": { "value": "[field('name')]" },
+                "location": { "value": "[field('location')]" },
+                "backupPolicyId": { "value": "[parameters('backupPolicyId')]" }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "vmName": { "type": "string" },
+                  "location": { "type": "string" },
+                  "backupPolicyId": { "type": "string" }
+                },
+                "variables": {
+                  "vaultId": "[split(parameters('backupPolicyId'), '/backupPolicies/')[0]]",
+                  "vaultName": "[last(split(variables('vaultId'), '/'))]",
+                  "fabric": "Azure",
+                  "protectionContainer": "[concat('iaasvmcontainer;iaasvmcontainerv2;', resourceGroup().name, ';', parameters('vmName'))]",
+                  "protectedItem": "[concat('vm;iaasvmcontainerv2;', resourceGroup().name, ';', parameters('vmName'))]"
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
+                    "apiVersion": "2023-04-01",
+                    "name": "[concat(variables('vaultName'), '/', variables('fabric'), '/', variables('protectionContainer'), '/', variables('protectedItem'))]",
+                    "properties": {
+                      "protectedItemType": "Microsoft.Compute/virtualMachines",
+                      "policyId": "[parameters('backupPolicyId')]",
+                      "sourceResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

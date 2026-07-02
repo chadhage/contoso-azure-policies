@@ -1,0 +1,110 @@
+{
+  "name": "contoso-deploy-diagnostic-settings-to-law",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Deploy diagnostic settings for Key Vault to Log Analytics",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Ensures resources send platform logs and metrics to the central Log Analytics workspace, deploying the diagnostic setting when missing. This example targets Key Vault; clone per resource type in the governance initiative. Supports the Governance / Operational Excellence pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Monitoring",
+      "wafPillar": "Governance",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect"
+        },
+        "allowedValues": [ "DeployIfNotExists", "AuditIfNotExists", "Disabled" ],
+        "defaultValue": "DeployIfNotExists"
+      },
+      "logAnalyticsWorkspaceId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Log Analytics workspace resource id",
+          "description": "Central workspace in the platform-management subscription.",
+          "strongType": "Microsoft.OperationalInsights/workspaces"
+        }
+      },
+      "diagnosticSettingName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Diagnostic setting name"
+        },
+        "defaultValue": "contoso-central-logging"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.KeyVault/vaults"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "name": "[parameters('diagnosticSettingName')]",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+            "/providers/Microsoft.Authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+          ],
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/workspaceId",
+                "equals": "[parameters('logAnalyticsWorkspaceId')]"
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "resourceName": { "value": "[field('name')]" },
+                "logAnalyticsWorkspaceId": { "value": "[parameters('logAnalyticsWorkspaceId')]" },
+                "diagnosticSettingName": { "value": "[parameters('diagnosticSettingName')]" },
+                "location": { "value": "[field('location')]" }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "resourceName": { "type": "string" },
+                  "logAnalyticsWorkspaceId": { "type": "string" },
+                  "diagnosticSettingName": { "type": "string" },
+                  "location": { "type": "string" }
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.KeyVault/vaults/providers/diagnosticSettings",
+                    "apiVersion": "2021-05-01-preview",
+                    "name": "[concat(parameters('resourceName'), '/Microsoft.Insights/', parameters('diagnosticSettingName'))]",
+                    "location": "[parameters('location')]",
+                    "properties": {
+                      "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                      "logs": [
+                        {
+                          "categoryGroup": "allLogs",
+                          "enabled": true
+                        }
+                      ],
+                      "metrics": [
+                        {
+                          "category": "AllMetrics",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

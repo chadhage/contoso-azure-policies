@@ -1,0 +1,44 @@
+{
+  "name": "contoso-require-sql-geo-redundant-backup",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "SQL databases should use geo-redundant backup storage",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Requires Azure SQL databases to store backups on geo-redundant storage so point-in-time and long-term backups survive a regional outage. Supports the Reliability pillar of the Well-Architected Framework.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "SQL",
+      "wafPillar": "Reliability",
+      "organization": "Contoso"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [ "Audit", "Deny", "Disabled" ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Sql/servers/databases"
+          },
+          {
+            "field": "Microsoft.Sql/servers/databases/requestedBackupStorageRedundancy",
+            "notIn": [ "Geo", "GeoZone" ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

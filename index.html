@@ -22,6 +22,7 @@
       <a href="#architecture">Architecture</a>
       <a href="#catalog">Policy catalog</a>
       <a href="#deploy">Deploy</a>
+      <a href="#wizard">Wizard</a>
       <a class="nav-cta" href="https://github.com/chadhage/contoso-azure-policies" target="_blank" rel="noopener">GitHub ↗</a>
     </nav>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme" title="Toggle theme">◐</button>
@@ -142,6 +143,97 @@ az deployment tenant create \
         <strong>Rollout model:</strong> onboard in <code>Audit</code> → measure 2–4 weeks → remediate →
         promote the assignment <code>effect</code> to <code>Deny</code> → time-box any exemptions.
       </p>
+    </section>
+
+    <!-- WIZARD -->
+    <section id="wizard" class="section">
+      <div class="section-head">
+        <h2>Deployment wizard</h2>
+        <p>
+          Enter your Azure specifics to generate a ready-to-run script that signs in with
+          <strong>device code</strong>, pulls the baseline definitions, and assigns your selected
+          initiatives with your parameters. Everything runs in your browser — no input leaves this page.
+        </p>
+      </div>
+
+      <div class="wizard">
+        <form class="wizard-form" id="wizardForm" autocomplete="off">
+          <fieldset>
+            <legend><span class="step-dot">1</span> Target &amp; sign-in</legend>
+            <div class="field-grid">
+              <label>Azure tenant ID
+                <input type="text" id="wz-tenant" placeholder="00000000-0000-0000-0000-000000000000" spellcheck="false" />
+              </label>
+              <label>Subscription ID <span class="hint">context to run from</span>
+                <input type="text" id="wz-sub" placeholder="platform-management subscription id" spellcheck="false" />
+              </label>
+              <label>Management group ID
+                <input type="text" id="wz-mg" value="contoso" spellcheck="false" />
+              </label>
+              <label>Deployment region
+                <input type="text" id="wz-location" value="eastus" spellcheck="false" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="step-dot">2</span> Guardrail parameters</legend>
+            <div class="field-grid">
+              <label>Allowed regions <span class="hint">comma-separated</span>
+                <input type="text" id="wz-regions" value="eastus, westus3, westeurope" spellcheck="false" />
+              </label>
+              <label>Allowed VM SKUs <span class="hint">optional, comma-separated</span>
+                <input type="text" id="wz-skus" placeholder="Standard_D2s_v5, Standard_D4s_v5" spellcheck="false" />
+              </label>
+              <label>Log Analytics workspace ID <span class="hint">optional — enables diagnostics</span>
+                <input type="text" id="wz-law" placeholder="/subscriptions/…/workspaces/law-central" spellcheck="false" />
+              </label>
+              <label>VM backup policy ID <span class="hint">optional — enables VM backup</span>
+                <input type="text" id="wz-backup" placeholder="/subscriptions/…/backupPolicies/DailyPolicy" spellcheck="false" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="step-dot">3</span> Posture &amp; scope</legend>
+            <div class="field-grid">
+              <label>Enforcement mode
+                <select id="wz-mode">
+                  <option value="audit">Audit only (recommended first)</option>
+                  <option value="enforce">Enforce (Deny / Deploy / Modify)</option>
+                </select>
+              </label>
+            </div>
+            <p class="field-label">Initiatives to assign</p>
+            <div class="pillar-check" id="wz-pillars">
+              <label><input type="checkbox" value="governance" checked /> 🏛️ Governance</label>
+              <label><input type="checkbox" value="security" checked /> 🔒 Security</label>
+              <label><input type="checkbox" value="reliability" checked /> ♻️ Reliability</label>
+              <label><input type="checkbox" value="cost" checked /> 💰 Cost</label>
+              <label><input type="checkbox" value="performance" checked /> ⚡ Performance</label>
+            </div>
+          </fieldset>
+        </form>
+
+        <div class="wizard-output">
+          <div class="wizard-out-head">
+            <div class="code-tabs" role="tablist" aria-label="Script format">
+              <button class="code-tab active" data-shell="pwsh" role="tab" type="button">PowerShell</button>
+              <button class="code-tab" data-shell="bash" role="tab" type="button">Bash</button>
+            </div>
+            <div class="wizard-actions">
+              <button class="btn ghost sm" id="wzCopy" type="button">Copy</button>
+              <button class="btn ghost sm" id="wzDownload" type="button">Download</button>
+            </div>
+          </div>
+          <pre class="code-pane active wizard-pre"><code id="wizardScript"></code></pre>
+          <p class="wizard-note">
+            Runs <code>az login --use-device-code</code> against your tenant, clones this repo for the
+            policy definitions, then assigns your selected initiatives. Requires the Azure CLI and Git.
+            Review the script before running.
+          </p>
+        </div>
+      </div>
     </section>
   </main>
 
